@@ -17,7 +17,7 @@ To install the `Collection Cache` package, use [Poetry](https://python-poetry.or
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/collection-cache.git
+    git clone https://github.com/Luiz-Trindade/collections_cache.git
     cd collection-cache
     ```
 
