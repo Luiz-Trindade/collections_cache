@@ -28,7 +28,8 @@ class Collection_Cache:
 
     def initialize_databases(self, db_path):
         conn = sqlite3.connect(db_path)
-        conn.execute("PRAGMA journal_mode=WAL;")
+        self.configure_connection(conn)
+        #conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS data(
                 key     TEXT,
@@ -48,8 +49,9 @@ class Collection_Cache:
 
     def get_all_keys(self, database):
         conn    = sqlite3.connect(database)
+        self.configure_connection(conn)
         cursor  = conn.cursor()
-        cursor.execute("PRAGMA journal_mode=WAL;")
+        #cursor.execute("PRAGMA journal_mode=WAL;")
         cursor.execute("SELECT key FROM data;")
         result  = cursor.fetchall()
         keys    = [(line[0], database) for line in result]
@@ -62,8 +64,9 @@ class Collection_Cache:
             database_to_insert = choice(self.databases_list)
             #print(f"Inserting in {database_to_insert}")
             conn = sqlite3.connect(database_to_insert)
+            self.configure_connection(conn)
             cursor = conn.cursor()
-            cursor.execute("PRAGMA journal_mode=WAL;")
+            #cursor.execute("PRAGMA journal_mode=WAL;")
             cursor.execute("INSERT INTO data(key, value) VALUES (?, ?);", (key, pickle.dumps(value)))
             conn.commit()
             conn.close()
@@ -73,8 +76,9 @@ class Collection_Cache:
             #print(f"Updating key '{key}' in {self.keys_databases[key]}...")
             database_to_update = self.keys_databases[key]
             conn = sqlite3.connect(database_to_update)
+            self.configure_connection(conn)
             cursor = conn.cursor()
-            cursor.execute("PRAGMA journal_mode=WAL;")
+            #cursor.execute("PRAGMA journal_mode=WAL;")
             cursor.execute("UPDATE data SET value = ? WHERE key = ?;", (pickle.dumps(value), key))
             conn.commit()
             conn.close()
@@ -96,8 +100,9 @@ class Collection_Cache:
             #print(database_to_search)
 
             conn = sqlite3.connect(database_to_search)
+            self.configure_connection(conn)
             cursor = conn.cursor()
-            cursor.execute("PRAGMA journal_mode=WAL;")
+            #cursor.execute("PRAGMA journal_mode=WAL;")
             cursor.execute("SELECT value FROM data WHERE key = ?", (key,))
             result = cursor.fetchall()
             conn.close()
@@ -113,8 +118,9 @@ class Collection_Cache:
             #print(database_to_search)
 
             conn = sqlite3.connect(database_to_delete)
+            self.configure_connection(conn)
             cursor = conn.cursor()
-            cursor.execute("PRAGMA journal_mode=WAL;")
+            #cursor.execute("PRAGMA journal_mode=WAL;")
             cursor.execute("DELETE FROM data WHERE key = ?", (key,))
             conn.commit()
             conn.close()
@@ -125,3 +131,8 @@ class Collection_Cache:
             
         except Exception as error:
             return error
+
+    def configure_connection(self, conn):
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute("PRAGMA synchronous = NORMAL;")
+        conn.execute("PRAGMA wal_autocheckpoint = 1000;")
