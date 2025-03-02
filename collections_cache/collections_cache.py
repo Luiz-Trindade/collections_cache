@@ -1,10 +1,11 @@
 import sqlite3
-from multiprocessing import Pool
+#from multiprocessing import Pool
 from os import cpu_count, path, makedirs, scandir
 from itertools import chain
 from random import choice
 #from threading import Thread as task
 import pickle
+from concurrent.features import ProcessPoolExecutor as Pool
 
 class Collection_Cache:
     def __init__(self, collection_name):
