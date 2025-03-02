@@ -3,8 +3,8 @@ import sqlite3
 from random import choice
 from itertools import chain
 from os import cpu_count, path, makedirs, scandir
-#from concurrent.futures import ProcessPoolExecutor as Pool
-from concurrent.futures import ThreadPoolExecutor as Pool
+from concurrent.futures import ProcessPoolExecutor as Pool
+from concurrent.futures import ThreadPoolExecutor as Thread
 
 class Collection_Cache:
     def __init__(self, collection_name):
@@ -73,8 +73,8 @@ class Collection_Cache:
 
     def set_multi_keys(self, keys_and_values: dict[str, any]):
         """Experimental. Set multiple keys and values at the same time."""
-        with Pool(self.cpu_cores) as pool:
-            pool.map(lambda kv: self.set_key(kv[0], kv[1]), keys_and_values.items())
+        with Thread(self.cpu_cores) as thread:
+            thread.map(lambda kv: self.set_key(kv[0], kv[1]), keys_and_values.items())
 
     def add_to_keys_database(self, key, database):
         self.keys_databases[key] = database
