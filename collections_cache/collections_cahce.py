@@ -98,9 +98,3 @@ class Collection_Cache:
             
         except Exception as error:
             return error
-    
-conn = Collection_Cache("STORE")
-conn.set_key("alunos", ["Luiz", "Marcos", "João"])
-
-alunos = conn.get_key("alunos")
-print(alunos)
