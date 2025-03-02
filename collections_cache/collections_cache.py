@@ -115,9 +115,13 @@ class Collection_Cache:
             return error
 
     def configure_connection(self, conn):
+        conn.execute("PRAGMA auto_vacuum = FULL;")
         conn.execute("PRAGMA journal_mode = WAL;")
         conn.execute("PRAGMA synchronous = NORMAL;")
         conn.execute("PRAGMA wal_autocheckpoint = 1000;")
+        conn.execute("PRAGMA cache_size = -2000;")
+        conn.execute("PRAGMA temp_store = MEMORY;")
+        conn.execute("PRAGMA optimize;")
 
     def keys(self):
         """Returns all stored keys"""
