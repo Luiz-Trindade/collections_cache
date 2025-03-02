@@ -3,6 +3,7 @@ from multiprocessing import Pool
 from os import cpu_count, path, makedirs, scandir
 from itertools import chain
 from random import choice
+#from threading import Thread as task
 import pickle
 
 class Collection_Cache:
@@ -56,6 +57,7 @@ class Collection_Cache:
         return keys
 
     def set_key(self, key, value):
+        """Used to store values and associate a value with a key."""
         if key not in self.keys_databases:
             database_to_insert = choice(self.databases_list)
             #print(f"Inserting in {database_to_insert}")
@@ -82,7 +84,13 @@ class Collection_Cache:
         self.keys_databases[key] = database
         #print(self.keys_databases)
 
+    def delete_to_keys_database(self, key):
+        """Removes the key from the dictionary of stored keys"""
+        if key in self.keys_databases:
+            del self.keys_databases[key]
+
     def get_key(self, key):
+        """Used to obtain the value stored by the key"""
         try:
             database_to_search = self.keys_databases[key]
             #print(database_to_search)
@@ -94,6 +102,26 @@ class Collection_Cache:
             result = cursor.fetchall()
             conn.close()
             return pickle.loads(result[0][0])
+            
+        except Exception as error:
+            return error
+
+    def delete_key(self, key):
+        """Used to delete the value stored by the key"""
+        try:
+            database_to_delete = self.keys_databases[key]
+            #print(database_to_search)
+
+            conn = sqlite3.connect(database_to_delete)
+            cursor = conn.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL;")
+            cursor.execute("DELETE FROM data WHERE key = ?", (key,))
+            conn.commit()
+            conn.close()
+            self.delete_to_keys_database(key)
+
+        except KeyError:
+            return f"Key '{key}' not found."
             
         except Exception as error:
             return error
