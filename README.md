@@ -1,6 +1,6 @@
-# Collection Cache
+# collections-cache
 
-`Collection Cache` is a simple and efficient caching solution built using SQLite databases. It allows for storing, updating, and retrieving data using unique keys, supporting complex data types through the use of `pickle`. It is designed to scale across multiple CPU cores by distributing the data across multiple SQLite databases.
+`collections-cache` is a simple and efficient caching solution built using SQLite databases. It allows for storing, updating, and retrieving data using unique keys, supporting complex data types through the use of `pickle`. It is designed to scale across multiple CPU cores by distributing the data across multiple SQLite databases.
 
 ## Features
 
@@ -12,7 +12,7 @@
 
 ## Installation
 
-To install the `Collection Cache` package, use [Poetry](https://python-poetry.org/) for managing dependencies.
+To install the `collections-cache` package, use [Poetry](https://python-poetry.org/) for managing dependencies.
 
 1. Clone the repository:
 
@@ -29,18 +29,18 @@ To install the `Collection Cache` package, use [Poetry](https://python-poetry.or
 
 ## Usage
 
-To use the `Collection Cache` package, you can import the main class `Collection_Cache` and interact with your collection.
+To use the `collections-cache` package, you can import the main class `Collection_Cache` and interact with your collection.
 
 ### Example:
 
 ```python
-from collection_cache import Collection_Cache
+from collections_cache import Collection_Cache
 
 # Create a new collection
 cache = Collection_Cache("STORE")
 
 # Set a key-value pair
-cache.set_key("alunos", ["Luiz", "Marcos", "João"])
+cache.set_key("products", ["apple", "orange", "onion"])
 
 # Get the value by key
 students = cache.get_key("alunos")
@@ -51,8 +51,7 @@ print(students)  # Output: ['Luiz', 'Marcos', 'João']
 
 - **`set_key(key, value)`**: Set a key-value pair in the cache. If the key already exists, it will be updated.
 - **`get_key(key)`**: Retrieve the value associated with a key.
-- **`create_collection()`**: Initializes the collection and sets up databases for key-value storage.
-- **`get_all_keys()`**: Retrieves all keys from the collection.
+- **`delete_key(key)`**: Delete an existing key.
 
 ## Development
 
@@ -77,4 +76,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgements
 
 - This package was created to demonstrate how to work with SQLite, `pickle`, and Python's `multiprocessing` module.
-
+-Created by: Luiz Trindade.
