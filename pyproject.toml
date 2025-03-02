@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "collections-cache"
-version = "0.1.9"
-description = "Collection Cache is a Python package for managing data collections across multiple SQLite databases. It allows efficient storage, retrieval, and updating of key-value pairs, supporting various data types serialized with pickle. The package uses parallel processing for fast access and manipulation of large collections."
+version = "0.2.0"
+description = "collections-cache is a Python package for managing data collections across multiple SQLite databases. It allows efficient storage, retrieval, and updating of key-value pairs, supporting various data types serialized with pickle. The package uses parallel processing for fast access and manipulation of large collections."
 authors = ["Luiz-Trindade <luiz.gabriel.m.trindade@gmail.com>"]
 license = "MIT"
 readme = "README.md"

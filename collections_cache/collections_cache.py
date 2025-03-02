@@ -137,3 +137,11 @@ class Collection_Cache:
         conn.execute("PRAGMA journal_mode = WAL;")
         conn.execute("PRAGMA synchronous = NORMAL;")
         conn.execute("PRAGMA wal_autocheckpoint = 1000;")
+
+    def keys(self):
+        """Returns all stored keys"""
+        return list(self.keys_databases.keys())
+
+    def export_to_json(self):
+        """Test"""
+        pass

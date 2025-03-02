@@ -53,6 +53,7 @@ print(products)  # Output: ['apple', 'orange', 'onion']
 - **`set_key(key, value)`**: Stores a key-value pair in the cache. If the key already exists, its value is updated.  
 - **`get_key(key)`**: Retrieves the value associated with a key.  
 - **`delete_key(key)`**: Removes an existing key from the cache.  
+- **`keys`***: Returns all stored keys.
 
 ## Development  
 
