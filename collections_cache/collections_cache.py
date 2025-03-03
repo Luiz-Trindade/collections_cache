@@ -1,3 +1,4 @@
+import atexit
 import pickle
 import sqlite3
 from random import choice
@@ -21,6 +22,9 @@ class Collection_Cache:
         # Init methods
         self.create_collection()
         self.get_all_databases()
+
+        # Shutdown method
+        atexit.register(self.shutdown)
 
     def configure_connection(self, conn):
         conn.executescript("""
@@ -74,6 +78,9 @@ class Collection_Cache:
             self.set_multi_keys(self.temp_keys_values)
             self.temp_keys_values = {}
         elif type_of_operation == "get_key":
+            self.set_multi_keys(self.temp_keys_values)
+            self.temp_keys_values = {}
+        elif type_of_operation == "set_key_force":
             self.set_multi_keys(self.temp_keys_values)
             self.temp_keys_values = {}
 
@@ -159,3 +166,7 @@ class Collection_Cache:
     def export_to_json(self):
         """Test"""
         pass
+
+    def shutdown(self):
+        """Save all keys to the collection before close or shutdown"""
+        self.verify_size_of_temp_queue("set_key_force")
