@@ -15,6 +15,8 @@ class Collection_Cache:
         self.collection_dir         = path.join("./Collections", self.collection_name)
         self.databases_list         = []
         self.keys_databases         = {}
+        self.temp_keys_values       = {}
+        self.size_limit             = 200
 
         # Init methods
         self.create_collection()
@@ -66,13 +68,22 @@ class Collection_Cache:
         conn.close()
         return keys
 
-    '''def set_key(self, key: str, value: any):
-        """Used to store values and associate a value with a key."""
-        t = Thread_Exec(target=self.set_key_exec, args=(key, value))
-        t.start()
-        t.join()'''
+    # Experimental
+    def verify_size_of_temp_queue(self, type_of_operation: str):
+        if type_of_operation == "set_key" and len(self.temp_keys_values) >= self.size_limit:
+            self.set_multi_keys(self.temp_keys_values)
+            self.temp_keys_values = {}
+        else:
+            self.set_multi_keys(self.temp_keys_values)
+            self.temp_keys_values = {}
 
+    # Experimental
     def set_key(self, key: str, value: any):
+        """Used to store values and associate a value with a key."""
+        self.temp_keys_values[key]  = value
+        self.verify_size_of_temp_queue("set_key")
+
+    def set_key_exec(self, key: str, value: any):
         """Used to store values and associate a value with a key."""
         if key not in self.keys_databases:
             database_to_insert = choice(self.databases_list)
@@ -95,22 +106,20 @@ class Collection_Cache:
 
     def set_multi_keys(self, keys_and_values: dict[str, any]):
         """Experimental. Set multiple keys and values at the same time."""
-
         with Thread(self.cpu_cores) as thread:
-            thread.map(lambda kv: self.set_key(kv[0], kv[1]), keys_and_values.items())
+            thread.map(lambda kv: self.set_key_exec(kv[0], kv[1]), keys_and_values.items())
 
     def add_to_keys_database(self, key, database):
         self.keys_databases[key] = database
 
     def delete_to_keys_database(self, key):
         """Removes the key from the dictionary of stored keys"""
-
         if key in self.keys_databases:
             del self.keys_databases[key]
 
     def get_key(self, key: str):
         """Used to obtain the value stored by the key"""
-
+        self.verify_size_of_temp_queue("get_key")
         try:
             database_to_search = self.keys_databases[key]
             conn = sqlite3.connect(database_to_search)
@@ -122,11 +131,10 @@ class Collection_Cache:
             return pickle.loads(result[0][0])
 
         except Exception as error:
-            return error
+            return None
 
     def delete_key(self, key: str):
         """Used to delete the value stored by the key"""
-
         try:
             database_to_delete = self.keys_databases[key]
             conn = sqlite3.connect(database_to_delete)
