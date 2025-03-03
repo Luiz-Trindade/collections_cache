@@ -14,12 +14,14 @@ class Collection_Cache:
         self.collection_dir         = path.join("./Collections", self.collection_name)
         self.databases_list         = []
         self.keys_databases         = {}
+
         # Init methods
         self.create_collection()
         self.get_all_databases()
 
     def create_collection(self):
         makedirs(self.collection_dir, exist_ok=True)
+
         for core in range(self.cpu_cores):
             db_path = path.join(self.collection_dir, f"database_{core}.db")
             self.initialize_databases(db_path)
@@ -38,6 +40,7 @@ class Collection_Cache:
     def get_all_databases(self):
         with scandir(self.collection_dir) as contents:
             self.databases_list = [path.join(self.collection_dir, content.name) for content in contents]
+
         with Pool(self.cpu_cores) as pool:
             self.keys_databases = dict(chain.from_iterable(pool.map(self.get_all_keys, self.databases_list)))
 
@@ -62,6 +65,7 @@ class Collection_Cache:
             conn.commit()
             conn.close()
             self.add_to_keys_database(key, database_to_insert)
+
         else:
             database_to_update = self.keys_databases[key]
             conn = sqlite3.connect(database_to_update)
@@ -73,6 +77,7 @@ class Collection_Cache:
 
     def set_multi_keys(self, keys_and_values: dict[str, any]):
         """Experimental. Set multiple keys and values at the same time."""
+
         with Thread(self.cpu_cores) as thread:
             thread.map(lambda kv: self.set_key(kv[0], kv[1]), keys_and_values.items())
 
@@ -81,11 +86,13 @@ class Collection_Cache:
 
     def delete_to_keys_database(self, key):
         """Removes the key from the dictionary of stored keys"""
+
         if key in self.keys_databases:
             del self.keys_databases[key]
 
     def get_key(self, key: str):
         """Used to obtain the value stored by the key"""
+
         try:
             database_to_search = self.keys_databases[key]
             conn = sqlite3.connect(database_to_search)
@@ -95,11 +102,13 @@ class Collection_Cache:
             result = cursor.fetchall()
             conn.close()
             return pickle.loads(result[0][0])
+
         except Exception as error:
             return error
 
     def delete_key(self, key: str):
         """Used to delete the value stored by the key"""
+
         try:
             database_to_delete = self.keys_databases[key]
             conn = sqlite3.connect(database_to_delete)
@@ -109,19 +118,23 @@ class Collection_Cache:
             conn.commit()
             conn.close()
             self.delete_to_keys_database(key)
+
         except KeyError:
             return f"Key '{key}' not found."
+
         except Exception as error:
             return error
 
     def configure_connection(self, conn):
-        conn.execute("PRAGMA auto_vacuum = FULL;")
-        conn.execute("PRAGMA journal_mode = WAL;")
-        conn.execute("PRAGMA synchronous = NORMAL;")
-        conn.execute("PRAGMA wal_autocheckpoint = 1000;")
-        conn.execute("PRAGMA cache_size = -2000;")
-        conn.execute("PRAGMA temp_store = MEMORY;")
-        conn.execute("PRAGMA optimize;")
+        conn.executescript("""
+            PRAGMA auto_vacuum = FULL;
+            PRAGMA journal_mode = WAL;
+            PRAGMA synchronous = NORMAL;
+            PRAGMA wal_autocheckpoint = 1000;
+            PRAGMA cache_size = -2000;
+            PRAGMA temp_store = MEMORY;
+            PRAGMA optimize;
+        """)
 
     def keys(self):
         """Returns all stored keys"""
