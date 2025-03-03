@@ -70,6 +70,7 @@ class Collection_Cache:
         """Used to store values and associate a value with a key."""
         t = Thread_Exec(target=self.set_key_exec, args=(key, value))
         t.start()
+        t.join()
 
     def set_key_exec(self, key: str, value: any):
         """Used to store values and associate a value with a key."""
