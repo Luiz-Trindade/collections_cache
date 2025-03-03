@@ -19,12 +19,16 @@ class Collection_Cache:
         self.create_collection()
         self.get_all_databases()
 
-    def create_collection(self):
-        makedirs(self.collection_dir, exist_ok=True)
-
-        for core in range(self.cpu_cores):
-            db_path = path.join(self.collection_dir, f"database_{core}.db")
-            self.initialize_databases(db_path)
+    def configure_connection(self, conn):
+        conn.executescript("""
+            PRAGMA auto_vacuum = FULL;
+            PRAGMA journal_mode = WAL;
+            PRAGMA synchronous = NORMAL;
+            PRAGMA wal_autocheckpoint = 1000;
+            PRAGMA cache_size = -2000;
+            PRAGMA temp_store = MEMORY;
+            PRAGMA optimize;
+        """)
 
     def initialize_databases(self, db_path):
         conn = sqlite3.connect(db_path)
@@ -36,6 +40,13 @@ class Collection_Cache:
             );
         """)
         conn.close()
+
+    def create_collection(self):
+        makedirs(self.collection_dir, exist_ok=True)
+
+        for core in range(self.cpu_cores):
+            db_path = path.join(self.collection_dir, f"database_{core}.db")
+            self.initialize_databases(db_path)
 
     def get_all_databases(self):
         with scandir(self.collection_dir) as contents:
@@ -125,17 +136,7 @@ class Collection_Cache:
         except Exception as error:
             return error
 
-    def configure_connection(self, conn):
-        conn.executescript("""
-            PRAGMA auto_vacuum = FULL;
-            PRAGMA journal_mode = WAL;
-            PRAGMA synchronous = NORMAL;
-            PRAGMA wal_autocheckpoint = 1000;
-            PRAGMA cache_size = -2000;
-            PRAGMA temp_store = MEMORY;
-            PRAGMA optimize;
-        """)
-
+    
     def keys(self):
         """Returns all stored keys"""
         return list(self.keys_databases.keys())
