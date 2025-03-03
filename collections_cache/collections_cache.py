@@ -5,10 +5,9 @@ from itertools import chain
 from os import cpu_count, path, makedirs, scandir
 from concurrent.futures import ProcessPoolExecutor as Pool
 from concurrent.futures import ThreadPoolExecutor as Thread
-from threading import Thread as Thread_Exec
 
 class Collection_Cache:
-    def __init__(self, collection_name):
+    def __init__(self, collection_name: str, size_limit:int = 800):
         # Variables
         self.collection_name        = collection_name
         self.cpu_cores              = cpu_count()
@@ -16,7 +15,7 @@ class Collection_Cache:
         self.databases_list         = []
         self.keys_databases         = {}
         self.temp_keys_values       = {}
-        self.size_limit             = 200
+        self.size_limit             = size_limit
 
         # Init methods
         self.create_collection()
@@ -73,7 +72,7 @@ class Collection_Cache:
         if type_of_operation == "set_key" and len(self.temp_keys_values) >= self.size_limit:
             self.set_multi_keys(self.temp_keys_values)
             self.temp_keys_values = {}
-        else:
+        elif type_of_operation == "get_key":
             self.set_multi_keys(self.temp_keys_values)
             self.temp_keys_values = {}
 
