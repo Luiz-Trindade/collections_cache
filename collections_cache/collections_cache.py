@@ -66,13 +66,13 @@ class Collection_Cache:
         conn.close()
         return keys
 
-    def set_key(self, key: str, value: any):
+    '''def set_key(self, key: str, value: any):
         """Used to store values and associate a value with a key."""
         t = Thread_Exec(target=self.set_key_exec, args=(key, value))
         t.start()
-        t.join()
+        t.join()'''
 
-    def set_key_exec(self, key: str, value: any):
+    def set_key(self, key: str, value: any):
         """Used to store values and associate a value with a key."""
         if key not in self.keys_databases:
             database_to_insert = choice(self.databases_list)
@@ -97,7 +97,7 @@ class Collection_Cache:
         """Experimental. Set multiple keys and values at the same time."""
 
         with Thread(self.cpu_cores) as thread:
-            thread.map(lambda kv: self.set_key_exec(kv[0], kv[1]), keys_and_values.items())
+            thread.map(lambda kv: self.set_key(kv[0], kv[1]), keys_and_values.items())
 
     def add_to_keys_database(self, key, database):
         self.keys_databases[key] = database
