@@ -5,6 +5,7 @@ from itertools import chain
 from os import cpu_count, path, makedirs, scandir
 from concurrent.futures import ProcessPoolExecutor as Pool
 from concurrent.futures import ThreadPoolExecutor as Thread
+from threading import Thread as Thread_Exec
 
 class Collection_Cache:
     def __init__(self, collection_name):
@@ -67,6 +68,11 @@ class Collection_Cache:
 
     def set_key(self, key: str, value: any):
         """Used to store values and associate a value with a key."""
+        t = Thread_Exec(target=self.set_key_exec, args=(key, value))
+        t.start()
+
+    def set_key_exec(self, key: str, value: any):
+        """Used to store values and associate a value with a key."""
         if key not in self.keys_databases:
             database_to_insert = choice(self.databases_list)
             conn = sqlite3.connect(database_to_insert)
@@ -90,7 +96,7 @@ class Collection_Cache:
         """Experimental. Set multiple keys and values at the same time."""
 
         with Thread(self.cpu_cores) as thread:
-            thread.map(lambda kv: self.set_key(kv[0], kv[1]), keys_and_values.items())
+            thread.map(lambda kv: self.set_key_exec(kv[0], kv[1]), keys_and_values.items())
 
     def add_to_keys_database(self, key, database):
         self.keys_databases[key] = database
