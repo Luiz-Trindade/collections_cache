@@ -28,9 +28,9 @@ class Collection_Cache:
 
     def configure_connection(self, conn):
         conn.executescript("""
+            PRAGMA synchronous = OFF;
             PRAGMA auto_vacuum = FULL;
             PRAGMA journal_mode = WAL;
-            PRAGMA synchronous = NORMAL;
             PRAGMA wal_autocheckpoint = 1000;
             PRAGMA cache_size = -2000;
             PRAGMA temp_store = MEMORY;
