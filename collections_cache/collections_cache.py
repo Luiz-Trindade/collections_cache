@@ -7,15 +7,16 @@ from concurrent.futures import ProcessPoolExecutor as Pool
 from concurrent.futures import ThreadPoolExecutor as Thread
 
 class Collection_Cache:
-    def __init__(self, collection_name: str, size_limit:int = 800):
+    def __init__(self, collection_name: str, constant_per_core: int = 100):
         # Variables
         self.collection_name        = collection_name
+        self.constant_per_core      = constant_per_core
         self.cpu_cores              = cpu_count()
+        self.size_limit             = self.constant_per_core * self.cpu_cores
         self.collection_dir         = path.join("./Collections", self.collection_name)
         self.databases_list         = []
         self.keys_databases         = {}
         self.temp_keys_values       = {}
-        self.size_limit             = size_limit
 
         # Init methods
         self.create_collection()
