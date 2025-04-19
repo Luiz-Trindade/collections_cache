@@ -126,9 +126,13 @@ class Collection_Cache:
 
     def get_key(self, key: str):
         """Used to obtain the value stored by the key"""
-        self.get_all_databases()
-        self.verify_size_of_temp_queue("get_key")
         try:
+            if key not in self.keys_databases:
+                self.verify_size_of_temp_queue("get_key")
+            
+            if key not in self.keys_databases:
+                return None
+        
             database_to_search = self.keys_databases[key]
             conn = sqlite3.connect(database_to_search)
             self.configure_connection(conn)
@@ -136,8 +140,12 @@ class Collection_Cache:
             cursor.execute("SELECT value FROM data WHERE key = ?", (key,))
             result = cursor.fetchall()
             conn.close()
-            return pickle.loads(result[0][0])
-
+            
+            #return pickle.loads(result[0][0])
+            if result:
+                return pickle.loads(result[0][0])
+            return None
+            
         except Exception as error:
             return None
 
