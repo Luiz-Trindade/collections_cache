@@ -126,6 +126,7 @@ class Collection_Cache:
 
     def get_key(self, key: str):
         """Used to obtain the value stored by the key"""
+        self.get_all_databases()
         self.verify_size_of_temp_queue("get_key")
         try:
             database_to_search = self.keys_databases[key]
