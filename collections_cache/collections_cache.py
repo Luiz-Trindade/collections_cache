@@ -13,7 +13,8 @@ class Collection_Cache:
         self.collection_name        = collection_name
         self.constant_per_core      = constant_per_core
         self.cpu_cores              = cpu_count()
-        self.size_limit             = self.constant_per_core * self.cpu_cores
+        #self.size_limit             = self.constant_per_core * self.cpu_cores
+        self.size_limit             = 1
         self.collection_dir         = path.join("./Collections", self.collection_name)
         self.databases_list         = []
         self.keys_databases         = {}
@@ -77,17 +78,14 @@ class Collection_Cache:
         if type_of_operation == "set_key" and len(self.temp_keys_values) >= self.size_limit:
             self.set_multi_keys(self.temp_keys_values)
             self.temp_keys_values = {}
-        elif type_of_operation == "get_key":
-            self.set_multi_keys(self.temp_keys_values)
-            self.temp_keys_values = {}
-        elif type_of_operation == "set_key_force":
+        elif type_of_operation == "get_key" or type_of_operation == "set_key_force":
             self.set_multi_keys(self.temp_keys_values)
             self.temp_keys_values = {}
 
     # Experimental
     def set_key(self, key: str, value: any):
         """Used to store values and associate a value with a key."""
-        self.temp_keys_values[key]  = value
+        self.temp_keys_values[key] = value
         self.verify_size_of_temp_queue("set_key")
 
     def set_key_exec(self, key: str, value: any):
@@ -115,6 +113,12 @@ class Collection_Cache:
         """Experimental. Set multiple keys and values at the same time."""
         with Thread(self.cpu_cores) as thread:
             thread.map(lambda kv: self.set_key_exec(kv[0], kv[1]), keys_and_values.items())
+
+    # New feature
+    def set_key_force(self, key: str, value: any):
+        """Used to force a unique key to be stored"""
+        self.set_key(key, value)
+        self.verify_size_of_temp_queue("set_key_force")
 
     def add_to_keys_database(self, key, database):
         self.keys_databases[key] = database
@@ -175,7 +179,7 @@ class Collection_Cache:
     def export_to_json(self):
         """Test"""
         pass
-
+    
     def shutdown(self):
         """Save all keys to the collection before close or shutdown"""
         self.verify_size_of_temp_queue("set_key_force")
