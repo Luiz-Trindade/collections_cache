@@ -13,8 +13,7 @@ class Collection_Cache:
         self.collection_name        = collection_name
         self.constant_per_core      = constant_per_core
         self.cpu_cores              = cpu_count()
-        #self.size_limit             = self.constant_per_core * self.cpu_cores
-        self.size_limit             = 1
+        self.size_limit             = self.constant_per_core * self.cpu_cores
         self.collection_dir         = path.join("./Collections", self.collection_name)
         self.databases_list         = []
         self.keys_databases         = {}
